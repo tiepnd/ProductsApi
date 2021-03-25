@@ -1,8 +1,9 @@
-﻿using ProductsApi.Models;
-using ProductsApi.Services;
+﻿using ProductsApi.Models.v2;
+using ProductsApi.Services.v2;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-
+using System.Threading.Tasks;
+using System;
 
 namespace ProductsApi.Controllers.v2
 {
@@ -10,64 +11,100 @@ namespace ProductsApi.Controllers.v2
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ProductService _productService;
+        private IProductService _productService;
 
-        public ProductsController(ProductService productService)
+        public ProductsController(IProductService productService)
         {
             _productService = productService;
         }
 
-
-
         [HttpGet]
-        public ActionResult<List<Product>> Get() => _productService.Get();
-
-        [HttpGet("{id:length(24)}", Name = "GetProductV2")]
-        public ActionResult<Product> Get(string id)
+        public async Task<ActionResult<List<Product1>>> Get()
         {
-            var product = _productService.Get(id);
-            if (product == null)
+            try
             {
-                return NotFound();
+                return await _productService.ReadProductsAsync();
             }
-            return product;
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NoContent();
+            }
+            
+        }
+
+        [HttpGet("{id}", Name = "GetProductV2")]
+        public ActionResult<Product1> Get(string id)
+        {
+            
+            try
+            {
+                var product = _productService.ReadProductById(int.Parse(id));
+                if (product == null)
+                {
+                    return NoContent();
+                }
+                return product;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NoContent();
+            }
         }
 
         [HttpPost]
-        public ActionResult<Product> Create(Product product)
+        public async Task<ActionResult<Product1>> Create(Product1 product)
         {
-            _productService.Create(product);
-            return CreatedAtRoute("GetProductV2", new { id = product.Id.ToString() }, product);
+            try
+            {
+                await _productService.Create(product);
+                return CreatedAtRoute("GetProductV2", new { id = product.Id.ToString() }, product);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NoContent();
+            }
+           
         }
 
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, Product productIn)
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Product1>> Update(string id, Product1 productIn)
         {
-            var product = _productService.Get(id);
 
-            if (product == null)
+            try
             {
-                return NotFound();
+                Product1 product = await _productService.Update(int.Parse(id), productIn);
+
+                if (product == null)
+                {
+                    return NotFound();
+                }
+
+                return product;
             }
-
-            _productService.Update(id, productIn);
-
-            return NoContent();
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NoContent();
+            }
         }
 
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(string id)
         {
-            var product = _productService.Get(id);
-
-            if (product == null)
+            
+            try
             {
-                return NotFound();
+                await _productService.Delete(int.Parse(id));
+                return NoContent();
             }
-
-            _productService.Remove(product.Id);
-
-            return NoContent();
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return NoContent();
+            }
         }
     }
 }

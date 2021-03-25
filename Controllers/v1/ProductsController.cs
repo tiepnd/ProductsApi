@@ -1,5 +1,5 @@
 ﻿using ProductsApi.Models;
-using ProductsApi.Services;
+using ProductsApi.Services.v1;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -17,7 +17,16 @@ namespace ProductsApi.Controllers.v1
             _productService = productService;
         }
 
-
+        [HttpGet("test")]
+        public ActionResult<IEnumerable<Product>> GetAll()
+        {
+            return new[]
+            {
+            new Product { Name = "Ana" },
+            new Product { Name = "Felipe" },
+            new Product { Name = "Emillia" }
+        };
+        }
 
         [HttpGet]
         public ActionResult<List<Product>> Get() => _productService.Get();

@@ -7,13 +7,16 @@ namespace ProductsApi.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string Id { get; set; }
-
-        [BsonElement("Name")]
-
-        public string Name { get; set; }
         
+        
+        [BsonElement("name")]
+        [BsonRequired]
+        public string Name { get; set; }
+
+        [BsonElement("createdDate")]
         public string CreatedDate { get; set; }
 
+        [BsonElement("modifiedDate")]
         public string ModifiedDate { get; set; }
     }
 }

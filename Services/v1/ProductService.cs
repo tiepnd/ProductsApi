@@ -3,7 +3,7 @@ using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ProductsApi.Services
+namespace ProductsApi.Services.v1
 {
     public class ProductService
     {
